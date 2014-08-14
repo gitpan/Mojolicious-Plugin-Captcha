@@ -7,7 +7,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 
 use GD::SecurityImage;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 sub register {
 	my ($self, $app, $conf) = @_;
@@ -40,11 +40,11 @@ sub register {
 
 	$app->helper(
 		validate_captcha => sub {
-			my ( $self, $string ) = @_;
-			return
-				uc($string) eq &{$captcha_string}
-					? 1
-					: 0;
+			my ( $self, $string, $case_sens ) = @_;
+			return $case_sens
+				? $string eq &{$captcha_string}
+				: uc($string) eq uc(&{$captcha_string})
+			;
 		}
 	);
 }
@@ -57,7 +57,7 @@ Mojolicious::Plugin::Captcha - create and validate captcha for Mojolicious frame
 
 =head1 VERSION
 
-0.01
+0.02
 
 =head1 SYNOPSIS
 
@@ -109,6 +109,11 @@ Create Captcha image and output it.
 
 Validate captcha string
 
+	Accept optional second parameter to switch comparator case sensitivity (default is off, i.e. comparator make case insensivity comparing)
+
+	# case sensitivity comparing
+	$self->validate_captcha($self->param('captcha'), 1);
+
 =head1 CONFIGURATION
 
 =over 4
@@ -145,6 +150,6 @@ L<GD::SecurityImage>, L<Mojolicious>, L<Mojolicious::Plugin>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2013 zar. All right reserved.
+Copyright 2014 zar. All right reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
